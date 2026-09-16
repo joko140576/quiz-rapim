@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tebak Foto — Puzzle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#14161f;
+    --bg-1:#1c1f2b;
+    --surface:#242838;
+    --surface-2:#2d3245;
+    --hairline:rgba(232,224,209,0.10);
+    --gold:#c9a04a;
+    --gold-dim:#8f7638;
+    --text-hi:#efe9db;
+    --text-mid:#b7b3c4;
+    --text-low:#7c7a8c;
+    --danger:#b5544a;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Manrope', sans-serif;
+    color:var(--text-hi);
+    background:
+      radial-gradient(1100px 600px at 15% -10%, rgba(201,160,74,0.10), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(120,110,200,0.08), transparent 55%),
+      var(--bg-0);
+    display:flex;
+    justify-content:center;
+    padding:56px 20px 80px;
+  }
+
+  .stage{
+    width:100%;
+    max-width:620px;
+  }
+
+  .kicker{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:28px;
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:34px;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+
+  .kicker span{
+    color:var(--gold);
+    font-style:italic;
+    font-weight:400;
+  }
+
+  .count-pill{
+    font-size:13px;
+    color:var(--text-mid);
+    border:1px solid var(--hairline);
+    padding:6px 14px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Manager screen ---------- */
+  .panel{
+    background:linear-gradient(180deg, var(--surface), var(--bg-1));
+    border:1px solid var(--hairline);
+    border-radius:20px;
+    padding:28px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+
+  .panel p.helper{
+    margin:0 0 22px;
+    color:var(--text-mid);
+    font-size:15px;
+    line-height:1.6;
+    max-width:46ch;
+  }
+
+  .tray{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(96px, 1fr));
+    gap:12px;
+    margin-bottom:26px;
+  }
+
+  .thumb{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:12px;
+    overflow:hidden;
+    background:var(--surface-2);
+    border:1px solid var(--hairline);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:10px 8px;
+    text-align:center;
+  }
+
+  .thumb .file-icon{
+    font-size:22px;
+    color:var(--gold);
+  }
+
+  .thumb .filename{
+    font-size:11px;
+    color:var(--text-mid);
+    line-height:1.3;
+    word-break:break-word;
+    max-width:100%;
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+  }
+
+  .thumb .tag{
+    position:absolute;
+    left:6px;
+    top:6px;
+    font-size:11px;
+    background:rgba(20,22,31,0.72);
+    color:var(--text-hi);
+    padding:2px 7px;
+    border-radius:6px;
+  }
+
+  .thumb .remove{
+    position:absolute;
+    top:6px;
+    right:6px;
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:none;
+    background:rgba(20,22,31,0.78);
+    color:var(--text-hi);
+    cursor:pointer;
+    font-size:13px;
+    line-height:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background 0.15s ease, color 0.15s ease;
+  }
+
+  .thumb .remove:hover{
+    background:var(--danger);
+    color:#fff;
+  }
+
+  .add-tile{
+    aspect-ratio:1/1;
+    border-radius:12px;
+    border:1.5px dashed var(--gold-dim);
+    color:var(--gold);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    cursor:pointer;
+    font-size:12px;
+    background:rgba(201,160,74,0.05);
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .add-tile:hover{
+    border-color:var(--gold);
+    background:rgba(201,160,74,0.10);
+  }
+
+  .add-tile .plus{
+    font-size:22px;
+    font-family:'Fraunces', serif;
+    line-height:1;
+  }
+
+  input[type="file"]{display:none;}
+
+  .actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding-top:18px;
+    border-top:1px solid var(--hairline);
+  }
+
+  .clear-link{
+    border:none;
+    background:none;
+    color:var(--text-low);
+    font-size:13px;
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:3px;
+  }
+
+  .clear-link:hover{color:var(--danger);}
+
+  .btn-primary{
+    border:none;
+    border-radius:12px;
+    padding:13px 26px;
+    font-family:'Manrope', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#1a1509;
+    background:linear-gradient(180deg, #ddb968, var(--gold));
+    cursor:pointer;
+    box-shadow:0 10px 24px -10px rgba(201,160,74,0.55);
+    transition:transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .btn-primary:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+
+  .btn-primary:not(:disabled):hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 30px -10px rgba(201,160,74,0.65);
+  }
+
+  /* ---------- Game screen ---------- */
+  #gameScreen{display:none;}
+
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+
+  .progress-track{
+    flex:1;
+    height:3px;
+    background:var(--hairline);
+    border-radius:3px;
+    overflow:hidden;
+  }
+
+  .progress-fill{
+    height:100%;
+    background:var(--gold);
+    transition:width 0.35s ease;
+  }
+
+  .progress-label{
+    font-size:12px;
+    color:var(--text-low);
+    white-space:nowrap;
+  }
+
+  .board-frame{
+    background:linear-gradient(180deg, var(--surface), var(--bg-1));
+    border:1px solid var(--hairline);
+    border-radius:20px;
+    padding:26px;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.6);
+  }
+
+  #puzzle{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-rows:repeat(3, 1fr);
+    gap:3px;
+    width:100%;
+    aspect-ratio:1/1;
+    margin:0 auto;
+    border-radius:12px;
+    overflow:hidden;
+  }
+
+  .tile{
+    position:relative;
+    background-size:300% 300%;
+    cursor:pointer;
+    filter:brightness(0.92);
+    transition:filter 0.15s ease, outline-color 0.15s ease;
+  }
+
+  .tile:hover{filter:brightness(1.05);}
+
+  .tile-number{
+    position:absolute;
+    top:6px;
+    left:6px;
+    background:rgba(20,22,31,0.7);
+    color:var(--text-hi);
+    padding:2px 7px;
+    font-size:12px;
+    font-weight:700;
+    border-radius:6px;
+  }
+
+  .selected{
+    outline:2px solid var(--gold);
+    outline-offset:-2px;
+    filter:brightness(1.1);
+  }
+
+  #question{
+    font-family:'Fraunces', serif;
+    font-size:19px;
+    font-weight:600;
+    text-align:center;
+    margin:22px 0 20px;
+    color:var(--text-hi);
+  }
+
+  #navigation{
+    display:flex;
+    justify-content:center;
+    gap:12px;
+  }
+
+  .btn-ghost{
+    border:1px solid var(--hairline);
+    background:transparent;
+    color:var(--text-mid);
+    border-radius:10px;
+    padding:10px 16px;
+    font-size:13px;
+    cursor:pointer;
+  }
+
+  .btn-ghost:hover{border-color:var(--gold-dim); color:var(--gold);}
+
+  /* ---------- Final gallery ---------- */
+  #finalImages{display:none;}
+
+  #finalImages h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:24px;
+    margin:0 0 6px;
+  }
+
+  #finalImages .sub{
+    color:var(--text-mid);
+    font-size:14px;
+    margin:0 0 22px;
+  }
+
+  .final-gallery{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(120px, 1fr));
+    gap:12px;
+    margin-bottom:24px;
+  }
+
+  .final-gallery img{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:12px;
+    border:1px solid var(--hairline);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <div class="kicker">
+    <h1>Tebak <span>Foto</span></h1>
+    <div class="count-pill" id="headerCount">0 foto siap</div>
+  </div>
+
+  <!-- SETUP / MANAGER SCREEN -->
+  <div class="panel" id="setupScreen">
+    <p class="helper">Tambahkan foto yang mau dijadikan soal puzzle. Setiap foto akan diacak jadi 9 potongan, lalu pemain menyusunnya kembali sebelum menebak siapa orangnya.</p>
+
+    <div class="tray" id="tray">
+      <label class="add-tile" for="fileInput">
+        <div class="plus">+</div>
+        <div>Tambah Foto</div>
+      </label>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+
+    <div class="actions">
+      <button class="clear-link" id="clearBtn">Hapus semua foto</button>
+      <button class="btn-primary" id="startBtn" disabled>Mulai Game</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen">
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">Soal 1 / 1</div>
+    </div>
+
+    <div class="board-frame">
+      <div id="puzzle"></div>
+      <div id="question">Kira-kira siapakah foto dalam puzzle di atas?</div>
+      <div id="navigation">
+        <button class="btn-ghost" id="manageBtn">⚙️ Kelola Foto</button>
+        <button class="btn-primary" id="nextBtn">Soal Berikutnya</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="finalImages">
+    <div class="panel">
+      <h2>Jawaban Lengkap</h2>
+      <p class="sub">Ini semua foto asli yang dipakai di puzzle tadi.</p>
+      <div class="final-gallery" id="finalGallery"></div>
+      <div class="actions" style="border-top:none; padding-top:0;">
+        <button class="clear-link" id="editAgainBtn">Kelola foto lagi</button>
+        <button class="btn-primary" id="replayBtn">Main Ulang</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ---------- State ----------
+  let images = [];        // { id, src }
+  let order = [];         // shuffled question order (array of image ids) for current run
+  let currentIndex = 0;
+  let tiles = [];
+  let selectedTile = null;
+  let uid = 0;
+
+  // ---------- Elements ----------
+  const tray = document.getElementById('tray');
+  const fileInput = document.getElementById('fileInput');
+  const startBtn = document.getElementById('startBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const headerCount = document.getElementById('headerCount');
+
+  const setupScreen = document.getElementById('setupScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const finalImages = document.getElementById('finalImages');
+
+  const puzzle = document.getElementById('puzzle');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const nextBtn = document.getElementById('nextBtn');
+  const manageBtn = document.getElementById('manageBtn');
+  const question = document.getElementById('question');
+
+  const finalGallery = document.getElementById('finalGallery');
+  const editAgainBtn = document.getElementById('editAgainBtn');
+  const replayBtn = document.getElementById('replayBtn');
+
+  // ---------- Image manager ----------
+  fileInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        images.push({ id: uid++, src: reader.result, name: file.name });
+        renderTray();
+      };
+      reader.readAsDataURL(file);
+    });
+    fileInput.value = '';
+  });
+
+  function removeImage(id){
+    images = images.filter(img => img.id !== id);
+    renderTray();
+  }
+
+  clearBtn.addEventListener('click', () => {
+    if (images.length === 0) return;
+    images = [];
+    renderTray();
+  });
+
+  function renderTray(){
+    // remove all thumbs, keep the add-tile + hidden input
+    tray.querySelectorAll('.thumb').forEach(el => el.remove());
+
+    images.forEach((img, i) => {
+      const div = document.createElement('div');
+      div.className = 'thumb';
+
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+      tag.textContent = i + 1;
+      div.appendChild(tag);
+
+      const icon = document.createElement('div');
+      icon.className = 'file-icon';
+      icon.textContent = '🖼';
+      div.appendChild(icon);
+
+      const name = document.createElement('div');
+      name.className = 'filename';
+      name.textContent = img.name || `foto-${i + 1}`;
+      div.appendChild(name);
+
+      const remove = document.createElement('button');
+      remove.className = 'remove';
+      remove.textContent = '✕';
+      remove.onclick = () => removeImage(img.id);
+      div.appendChild(remove);
+
+      tray.insertBefore(div, tray.firstChild);
+    });
+
+    headerCount.textContent = `${images.length} foto siap`;
+    startBtn.disabled = images.length === 0;
+  }
+
+  // ---------- Game flow ----------
+  startBtn.addEventListener('click', startGame);
+  replayBtn.addEventListener('click', startGame);
+  manageBtn.addEventListener('click', showSetup);
+  editAgainBtn.addEventListener('click', showSetup);
+  nextBtn.addEventListener('click', nextPuzzle);
+
+  function showSetup(){
+    setupScreen.style.display = 'block';
+    gameScreen.style.display = 'none';
+    finalImages.style.display = 'none';
+  }
+
+  function startGame(){
+    if (images.length === 0) return;
+    order = shuffle(images.map(img => img.id));
+    currentIndex = 0;
+
+    setupScreen.style.display = 'none';
+    finalImages.style.display = 'none';
+    gameScreen.style.display = 'block';
+
+    loadPuzzle(currentIndex);
+  }
+
+  function shuffle(arr){
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function currentImage(){
+    const id = order[currentIndex];
+    return images.find(img => img.id === id);
+  }
+
+  function generateTiles(imageSrc){
+    const positions = [];
+    for (let i = 0; i < 9; i++){
+      positions.push({ x: i % 3, y: Math.floor(i / 3) });
+    }
+    const shuffled = shuffle(positions);
+    tiles = shuffled.map(pos => ({ x: pos.x, y: pos.y, image: imageSrc }));
+  }
+
+  function renderPuzzle(){
+    puzzle.innerHTML = '';
+    tiles.forEach((tile, i) => {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      div.style.backgroundImage = `url('${tile.image}')`;
+      div.style.backgroundPosition = `${tile.x * 50}% ${tile.y * 50}%`;
+      div.dataset.index = i;
+
+      const label = document.createElement('div');
+      label.className = 'tile-number';
+      label.textContent = i + 1;
+      div.appendChild(label);
+
+      div.onclick = () => handleTileClick(i, div);
+      puzzle.appendChild(div);
+    });
+
+    const total = order.length;
+    progressLabel.textContent = `Soal ${currentIndex + 1} / ${total}`;
+    progressFill.style.width = `${((currentIndex + 1) / total) * 100}%`;
+    nextBtn.textContent = currentIndex === total - 1 ? 'Lihat Jawaban ✓' : 'Soal Berikutnya';
+  }
+
+  function handleTileClick(index, element){
+    if (!selectedTile){
+      selectedTile = { index, element };
+      element.classList.add('selected');
+    } else {
+      const temp = tiles[selectedTile.index];
+      tiles[selectedTile.index] = tiles[index];
+      tiles[index] = temp;
+
+      selectedTile.element.classList.remove('selected');
+      selectedTile = null;
+      renderPuzzle();
+    }
+  }
+
+  function nextPuzzle(){
+    if (currentIndex < order.length - 1){
+      currentIndex++;
+      loadPuzzle(currentIndex);
+    } else {
+      endGame();
+    }
+  }
+
+  function endGame(){
+    gameScreen.style.display = 'none';
+    finalImages.style.display = 'block';
+
+    finalGallery.innerHTML = '';
+    order.forEach(id => {
+      const img = images.find(i => i.id === id);
+      if (!img) return;
+      const el = document.createElement('img');
+      el.src = img.src;
+      finalGallery.appendChild(el);
+    });
+  }
+
+  function loadPuzzle(index){
+    selectedTile = null;
+    generateTiles(currentImage().src);
+    renderPuzzle();
+  }
+
+  // ---------- Init ----------
+  renderTray();
+</script>
+
+</body>
+</html>
