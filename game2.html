@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acak Kata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0E0F1F;
+    --bg-1:#171933;
+    --panel:#1E2144;
+    --panel-2:#272B54;
+    --gold:#E7B75F;
+    --gold-soft:#F5DDA0;
+    --teal:#57C7B8;
+    --text:#F2EFE6;
+    --muted:#9C9CC2;
+    --success:#6FCF97;
+    --error:#E96A6A;
+    --radius-lg:20px;
+    --radius-md:12px;
+    --radius-sm:8px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(231,183,95,0.08), transparent 45%),
+      radial-gradient(circle at 85% 90%, rgba(87,199,184,0.09), transparent 45%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    font-family:'Space Grotesk', sans-serif;
+    color:var(--text);
+  }
+  .stage{
+    width:100%;
+    max-width:460px;
+    transition:max-width .25s ease;
+  }
+  .stage.wide{
+    max-width:min(94vw, 900px);
+  }
+  .card{
+    background:linear-gradient(160deg, var(--panel), var(--bg-1));
+    border:1px solid rgba(231,183,95,0.14);
+    border-radius:var(--radius-lg);
+    padding:32px 28px;
+    box-shadow:0 30px 60px -25px rgba(0,0,0,0.6);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-60px; right:-60px;
+    width:180px; height:180px;
+    background:radial-gradient(circle, rgba(231,183,95,0.18), transparent 70%);
+    pointer-events:none;
+  }
+  .eyebrow-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .gem{
+    width:10px;height:10px;
+    background:var(--gold);
+    transform:rotate(45deg);
+    border-radius:2px;
+    box-shadow:0 0 12px rgba(231,183,95,0.7);
+  }
+  .kicker{
+    font-size:13px;
+    color:var(--muted);
+    letter-spacing:0.02em;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:34px;
+    line-height:1.05;
+    margin:2px 0 8px;
+    background:linear-gradient(120deg, var(--gold-soft), var(--gold) 60%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  p.lead{
+    color:var(--muted);
+    font-size:14.5px;
+    line-height:1.55;
+    margin:0 0 26px;
+    max-width:34ch;
+  }
+
+  /* ---- Setup screen ---- */
+  .input-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  input[type="text"]{
+    flex:1;
+    background:var(--bg-0);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    color:var(--text);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  #wordInput{
+    letter-spacing:3px;
+    font-size:18px;
+  }
+  .mask-note{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    color:#63659A;
+    font-size:12px;
+    margin:-8px 0 16px;
+  }
+  input[type="text"]::placeholder{color:#63659A;}
+  input[type="text"]:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(231,183,95,0.15);
+  }
+  .btn{
+    border:none;
+    cursor:pointer;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    border-radius:var(--radius-md);
+    transition:transform .12s ease, box-shadow .12s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-add{
+    background:var(--panel-2);
+    color:var(--gold-soft);
+    border:1px solid rgba(231,183,95,0.35);
+    width:52px;
+    font-size:20px;
+    line-height:1;
+  }
+  .btn-add:hover{background:#31356A;}
+  .btn-primary{
+    width:100%;
+    background:linear-gradient(120deg, var(--gold-soft), var(--gold));
+    color:#241A05;
+    padding:15px;
+    font-size:16px;
+    box-shadow:0 12px 24px -10px rgba(231,183,95,0.55);
+  }
+  .btn-primary:hover{filter:brightness(1.04);}
+  .btn-primary:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+  .btn-ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.14);
+    color:var(--muted);
+    padding:13px 16px;
+    font-size:14px;
+  }
+  .btn-ghost:hover{color:var(--text); border-color:rgba(255,255,255,0.3);}
+
+  .word-list{
+    list-style:none;
+    margin:0 0 24px;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .word-chip{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:var(--radius-sm);
+    padding:10px 14px;
+    font-size:14px;
+    animation:pop .25s ease;
+  }
+  @keyframes pop{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);}}
+  .word-chip .status{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text);
+  }
+  .word-chip .check{
+    width:18px;height:18px;
+    border-radius:50%;
+    background:rgba(111,207,151,0.15);
+    color:var(--success);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;
+  }
+  .word-chip .remove{
+    background:none;border:none;color:var(--muted);
+    cursor:pointer; font-size:16px; line-height:1;
+    padding:2px 6px;
+  }
+  .word-chip .remove:hover{color:var(--error);}
+  .empty-hint{
+    color:#63659A;
+    font-size:13px;
+    text-align:center;
+    padding:18px 0;
+    border:1px dashed rgba(255,255,255,0.1);
+    border-radius:var(--radius-md);
+    margin-bottom:24px;
+  }
+
+  /* ---- Game screen ---- */
+  .hidden{display:none !important;}
+  .game-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:22px;
+  }
+  .progress-label{font-size:13px; color:var(--muted);}
+  .score-label{font-size:13px; color:var(--gold-soft); font-weight:600;}
+  .zone-title{
+    font-size:12px;
+    text-transform:none;
+    letter-spacing:0.02em;
+    color:var(--muted);
+    margin:0 0 10px;
+  }
+  .tiles-row{
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    margin-bottom:8px;
+    min-height:88px;
+    padding:20px 4px;
+    overflow-x:auto;
+  }
+  .tile{
+    flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--panel-2);
+    border:1px solid rgba(231,183,95,0.3);
+    border-radius:var(--radius-md);
+    font-weight:700;
+    cursor:default;
+    user-select:none;
+  }
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+  }
+  .btn-row .btn{flex:1;}
+  .btn-reveal{
+    background:transparent;
+    border:1px solid rgba(233,106,106,0.4);
+    color:#F0A6A6;
+    padding:13px;
+    font-size:14px;
+  }
+  .btn-reveal:hover{background:rgba(233,106,106,0.08);}
+  .btn-check{
+    background:linear-gradient(120deg, #7FE0C9, var(--teal));
+    color:#082B26;
+    padding:13px;
+    font-size:14px;
+    box-shadow:0 10px 20px -10px rgba(87,199,184,0.55);
+  }
+  .btn-reshuffle{
+    width:100%;
+    background:none;
+    border:none;
+    color:var(--muted);
+    font-size:12.5px;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    cursor:pointer;
+    margin-top:14px;
+    padding:4px;
+  }
+  .btn-reshuffle:hover{color:var(--text);}
+
+  /* ---- Finish screen ---- */
+  .finish-stat{
+    display:flex;
+    justify-content:space-between;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:var(--radius-sm);
+    padding:14px 16px;
+    margin-bottom:10px;
+    font-size:14px;
+  }
+  .finish-stat b{color:var(--gold-soft); font-size:15px;}
+
+  /* ---- Modal ---- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(6,7,18,0.72);
+    backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+    z-index:50;
+    animation:fadeIn .18s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .modal-box{
+    background:linear-gradient(160deg, var(--panel-2), var(--bg-1));
+    border:1px solid rgba(231,183,95,0.35);
+    border-radius:var(--radius-lg);
+    padding:34px 30px;
+    max-width:min(92vw, 720px);
+    width:100%;
+    text-align:center;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7);
+    animation:pop .2s ease;
+  }
+  .modal-box .label{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:14px;
+  }
+  .modal-word{
+    display:flex;
+    flex-wrap:nowrap;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+    overflow-x:auto;
+    padding:4px;
+  }
+  .modal-word .tile{
+    flex:0 0 auto;
+    cursor:default;
+    background:var(--panel);
+    border-color:var(--gold);
+    color:var(--gold-soft);
+  }
+  .modal-word .tile:hover{transform:none; background:var(--panel);}
+
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15); border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- ===== SETUP SCREEN ===== -->
+  <div class="card" id="setupScreen">
+    <div class="eyebrow-row"><span class="gem"></span><span class="kicker">Ruang Tamu Kata</span></div>
+    <h1>Acak Kata</h1>
+    <p class="lead">Masukkan beberapa kata rahasia. Tenang, hurufnya akan diacak dan disembunyikan sampai giliran menebak dimulai.</p>
+
+    <div class="input-row">
+      <input type="text" id="wordInput" placeholder="Ketik satu kata di sini..." maxlength="24" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button class="btn btn-add" id="addBtn" title="Tambah kata">+</button>
+    </div>
+    <div class="mask-note">✶ Otomatis tersamar jadi bintang saat diketik</div>
+
+    <ul class="word-list" id="wordList"></ul>
+    <div class="empty-hint" id="emptyHint">Belum ada kata. Tambahkan minimal satu untuk mulai bermain.</div>
+
+    <button class="btn btn-primary" id="playBtn" disabled>Mainkan</button>
+  </div>
+
+  <!-- ===== GAME SCREEN ===== -->
+  <div class="card hidden" id="gameScreen">
+    <div class="game-top">
+      <span class="progress-label" id="progressLabel">Kata 1 dari 1</span>
+      <span class="score-label" id="scoreLabel">Skor: 0</span>
+    </div>
+
+    <p class="zone-title">Susun huruf yang teracak ini</p>
+    <div class="tiles-row" id="scrambleRow"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-check" id="nextBtn">Kata Berikutnya</button>
+      <button class="btn btn-reveal" id="revealBtn">Kata yang Benar!</button>
+    </div>
+    <button class="btn-reshuffle" id="reshuffleBtn">Acak ulang huruf</button>
+  </div>
+
+  <!-- ===== FINISH SCREEN ===== -->
+  <div class="card hidden" id="finishScreen">
+    <div class="eyebrow-row"><span class="gem"></span><span class="kicker">Selesai</span></div>
+    <h1 id="finishTitle">Permainan Usai</h1>
+    <p class="lead">Begini hasil sesi acak katamu.</p>
+
+    <div class="finish-stat"><span>Kata dilanjut (tertebak)</span><b id="statCorrect">0</b></div>
+    <div class="finish-stat"><span>Jawaban dibuka paksa</span><b id="statRevealed">0</b></div>
+    <div class="finish-stat"><span>Total kata</span><b id="statTotal">0</b></div>
+
+    <div class="btn-row" style="margin-top:22px;">
+      <button class="btn btn-ghost" id="replaySameBtn" style="flex:1;">Main Lagi</button>
+      <button class="btn btn-primary" id="newSetBtn" style="flex:1;">Set Kata Baru</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-box">
+    <div class="label">Kata yang benar adalah</div>
+    <div class="modal-word" id="modalWord"></div>
+    <button class="btn btn-primary" id="modalNextBtn">Lanjut</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---------- State ----------
+  let words = [];          // list of secret words (never rendered as text)
+  let roundIndex = 0;
+  let score = 0;
+  let revealedCount = 0;
+  let correctCount = 0;
+
+  let currentWord = "";
+  let scrambled = [];      // array of letters (shuffled)
+  let roundLocked = false; // true once round finished/revealed, waiting to advance
+
+  // ---------- Elements ----------
+  const stage = document.querySelector('.stage');
+  const setupScreen = document.getElementById('setupScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const finishScreen = document.getElementById('finishScreen');
+
+  const wordInput = document.getElementById('wordInput');
+  const addBtn = document.getElementById('addBtn');
+  const wordList = document.getElementById('wordList');
+  const emptyHint = document.getElementById('emptyHint');
+  const playBtn = document.getElementById('playBtn');
+
+  const progressLabel = document.getElementById('progressLabel');
+  const scoreLabel = document.getElementById('scoreLabel');
+  const scrambleRow = document.getElementById('scrambleRow');
+  const nextBtn = document.getElementById('nextBtn');
+  const revealBtn = document.getElementById('revealBtn');
+  const reshuffleBtn = document.getElementById('reshuffleBtn');
+
+  const statCorrect = document.getElementById('statCorrect');
+  const statRevealed = document.getElementById('statRevealed');
+  const statTotal = document.getElementById('statTotal');
+  const replaySameBtn = document.getElementById('replaySameBtn');
+  const newSetBtn = document.getElementById('newSetBtn');
+
+  const modalOverlay = document.getElementById('modalOverlay');
+  const modalWord = document.getElementById('modalWord');
+  const modalNextBtn = document.getElementById('modalNextBtn');
+
+  // ---------- Masked input (tampil bintang, simpan kata asli di rawValue) ----------
+  let rawValue = '';
+  let cursorPos = 0;
+
+  wordInput.addEventListener('beforeinput', (e) => {
+    const start = wordInput.selectionStart;
+    const end = wordInput.selectionEnd;
+
+    if(e.inputType && e.inputType.startsWith('insert')){
+      let inserted = (e.data || '').replace(/[^a-zA-Z]/g, '');
+      rawValue = rawValue.slice(0, start) + inserted + rawValue.slice(end);
+      cursorPos = start + inserted.length;
+    } else if(e.inputType === 'deleteContentBackward'){
+      if(start !== end){
+        rawValue = rawValue.slice(0, start) + rawValue.slice(end);
+        cursorPos = start;
+      } else if(start > 0){
+        rawValue = rawValue.slice(0, start - 1) + rawValue.slice(start);
+        cursorPos = start - 1;
+      }
+    } else if(e.inputType === 'deleteContentForward'){
+      if(start !== end){
+        rawValue = rawValue.slice(0, start) + rawValue.slice(end);
+      } else {
+        rawValue = rawValue.slice(0, start) + rawValue.slice(start + 1);
+      }
+      cursorPos = start;
+    } else if(e.inputType === 'deleteByCut'){
+      rawValue = rawValue.slice(0, start) + rawValue.slice(end);
+      cursorPos = start;
+    }
+  });
+
+  wordInput.addEventListener('input', () => {
+    wordInput.value = '*'.repeat(rawValue.length);
+    wordInput.setSelectionRange(cursorPos, cursorPos);
+  });
+
+  function clearWordInput(){
+    rawValue = '';
+    cursorPos = 0;
+    wordInput.value = '';
+  }
+
+  // ---------- Setup screen logic ----------
+  function refreshWordList(){
+    wordList.innerHTML = '';
+    words.forEach((w, i) => {
+      const li = document.createElement('li');
+      li.className = 'word-chip';
+      li.innerHTML =
+        '<span class="status"><span class="check">✓</span> Kata ' + (i+1) + ' selesai</span>' +
+        '<button class="remove" data-index="'+i+'" title="Hapus">✕</button>';
+      wordList.appendChild(li);
+    });
+    emptyHint.classList.toggle('hidden', words.length > 0);
+    playBtn.disabled = words.length === 0;
+  }
+
+  function addWord(){
+    const clean = rawValue.trim().toUpperCase();
+    if(clean.length < 2) return;
+    words.push(clean);
+    clearWordInput();
+    wordInput.focus();
+    refreshWordList();
+  }
+
+  addBtn.addEventListener('click', addWord);
+  wordInput.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){ e.preventDefault(); addWord(); }
+  });
+  wordList.addEventListener('click', (e) => {
+    if(e.target.classList.contains('remove')){
+      const idx = parseInt(e.target.dataset.index, 10);
+      words.splice(idx, 1);
+      refreshWordList();
+    }
+  });
+
+  playBtn.addEventListener('click', () => {
+    roundIndex = 0;
+    score = 0;
+    revealedCount = 0;
+    correctCount = 0;
+    setupScreen.classList.add('hidden');
+    finishScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    stage.classList.add('wide');
+    startRound();
+  });
+
+  // ---------- Game logic ----------
+  function shuffleLetters(str){
+    const arr = str.split('');
+    let attempts = 0;
+    do{
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      attempts++;
+    } while(arr.join('') === str && attempts < 8);
+    return arr;
+  }
+
+  function startRound(){
+    currentWord = words[roundIndex];
+    scrambled = shuffleLetters(currentWord);
+    roundLocked = false;
+    progressLabel.textContent = 'Kata ' + (roundIndex+1) + ' dari ' + words.length;
+    scoreLabel.textContent = 'Skor: ' + score;
+    renderTiles();
+  }
+
+  function computeTileSize(container, count, fallbackWidth){
+    const containerWidth = (container && container.clientWidth) || fallbackWidth;
+    const gap = 10;
+    let size = Math.floor((containerWidth - gap * (count - 1)) / count);
+    size = Math.max(34, Math.min(84, size));
+    const fontSize = Math.max(15, Math.floor(size * 0.46));
+    return {size, fontSize};
+  }
+
+  function renderTiles(){
+    scrambleRow.innerHTML = '';
+    const count = scrambled.length;
+    const {size, fontSize} = computeTileSize(scrambleRow, count, 380);
+
+    scrambled.forEach((letter) => {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      div.style.width = size + 'px';
+      div.style.height = size + 'px';
+      div.style.fontSize = fontSize + 'px';
+      div.textContent = letter;
+      scrambleRow.appendChild(div);
+    });
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if(roundLocked) return;
+    score += 1;
+    correctCount += 1;
+    advanceRound();
+  });
+
+  reshuffleBtn.addEventListener('click', () => {
+    if(roundLocked) return;
+    scrambled = shuffleLetters(currentWord);
+    renderTiles();
+  });
+
+  revealBtn.addEventListener('click', () => {
+    if(roundLocked) return;
+    revealedCount += 1;
+    roundLocked = true;
+    modalOverlay.classList.remove('hidden');
+
+    const count = currentWord.length;
+    const fallback = Math.min(window.innerWidth * 0.92, 720) - 68;
+    const {size, fontSize} = computeTileSize(modalWord, count, fallback);
+
+    modalWord.innerHTML = '';
+    currentWord.split('').forEach(l => {
+      const div = document.createElement('div');
+      div.className = 'tile';
+      div.style.width = size + 'px';
+      div.style.height = size + 'px';
+      div.style.fontSize = fontSize + 'px';
+      div.textContent = l;
+      modalWord.appendChild(div);
+    });
+  });
+
+  modalNextBtn.addEventListener('click', () => {
+    modalOverlay.classList.add('hidden');
+    advanceRound();
+  });
+
+  function advanceRound(){
+    roundIndex += 1;
+    if(roundIndex >= words.length){
+      showFinish();
+    } else {
+      startRound();
+    }
+  }
+
+  function showFinish(){
+    gameScreen.classList.add('hidden');
+    finishScreen.classList.remove('hidden');
+    stage.classList.remove('wide');
+    statCorrect.textContent = correctCount;
+    statRevealed.textContent = revealedCount;
+    statTotal.textContent = words.length;
+  }
+
+  replaySameBtn.addEventListener('click', () => {
+    roundIndex = 0;
+    score = 0;
+    revealedCount = 0;
+    correctCount = 0;
+    finishScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    stage.classList.add('wide');
+    startRound();
+  });
+
+  newSetBtn.addEventListener('click', () => {
+    words = [];
+    refreshWordList();
+    finishScreen.classList.add('hidden');
+    setupScreen.classList.remove('hidden');
+    stage.classList.remove('wide');
+  });
+
+  refreshWordList();
+})();
+</script>
+
+</body>
+</html>
